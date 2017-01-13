@@ -1,0 +1,18 @@
+@(productForm: Form[Product], long: Long)(implicit flash: Flash, lang: Lang, messages: Messages)
+
+
+@main("edit form") {
+    <h2>Edit form</h2>
+
+    @helper.form(action = routes.Products.update(long)) {
+        <fieldset>
+            <legend>
+                Edit
+            </legend>
+            @helper.inputText(productForm("ean"))
+            @helper.inputText(productForm("name"))
+            @helper.textarea(productForm("description"))
+        </fieldset>
+        <p><input type="submit" class="btn primary" value="update"></p>
+    }
+}

@@ -1,9 +1,26 @@
-@(products: List[Product])(implicit lang: Lang)
-@main("qwerty") {
+@(products: List[Product])(implicit flash: Flash, lang: Lang)
+@main("app name") {
     <dl class="products">
     @for(product <- products) {
-        <dt>@product.name</dt>
+        @helper.form(action = routes.Products.delete(product.id)) {
+            <p><input type="submit" class="btn primary"
+            value='delete product'></p>
+        }
+        <a href="@controllers.routes.Products.edit(product.id)">
+        edit
+        </a>
+        <dt>
+            <a href="@controllers.routes.Products.show(product.id)">
+            @product.name
+            </a>
+        </dt>
         <dd>@product.description</dd>
+        <br>
     }
     </dl>
+    <p>
+        <a href="@controllers.routes.Products.list()"
+        class="btn">
+            <i class="icon-plus"></i> new product</a>
+    </p>
 }
