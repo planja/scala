@@ -15,26 +15,20 @@ import ExecutionContext.Implicits.global
 /**
   * Created by ShchykalauM on 09.01.2017.
   */
-case class Product(id: Long,ean: Long,name: String,description: String) {
-
-
-  /*def this(id: Long, ean: Long, name: String, description: String) {
-    this(ean, name, description)
-    this.id = id
-  }*/
+case class Product(id: Option[Long],ean: Long,name: String,description: String) {
 }
 
-class ProductTableDef(tag: Tag) extends Table[Product](tag, "product") {
+class ProductTableDef(tag: Tag) extends Table[Product](tag, "PRODUCT") {
 
-  def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+  def id = column[Long]("ID", O.PrimaryKey, O.AutoInc)
 
-  def ean = column[Long]("ean")
+  def ean = column[Long]("EAN")
 
-  def name = column[String]("name")
+  def name = column[String]("NAME")
 
-  def description = column[String]("description")
+  def description = column[String]("DESCRIPTION")
 
-  def * = (id, ean, name, description) <> ((Product.apply _).tupled, Product.unapply)
+  def * = (id.?, ean, name, description) <> ((Product.apply _).tupled, Product.unapply)
 
 }
 
@@ -43,14 +37,16 @@ object ProductDao {
 
   val products = TableQuery[ProductTableDef]
 
+  val insertQuery =(product:Product)=> {
+    (products += product).flatMap{x => products.sortBy{_.id.desc.nullsFirst}.map(_.id).result.head}
+  }
+
   def listAll: Future[Seq[Product]] = {
     dbConfig.db.run(products.result)
   }
 
-  def add(user: Product): Future[String] = {
-    dbConfig.db.run(products += user).map(res => "Product successfully added").recover {
-      case ex: Exception => ex.getCause.getMessage
-    }
+  def add(product: Product): Future[Long] = dbConfig.db.run{
+    insertQuery(product)
   }
 
   def delete(id: Long): Future[Int] = {
@@ -61,7 +57,7 @@ object ProductDao {
 
 object ProductCompanion {
   private var products = Set(
-    new Product(1, 5010255079763L, "Paperclips Large",
+   /* new Product(1, 5010255079763L, "Paperclips Large",
       "Large Plain Pack of 1000"),
     new Product(2, 5018206244666L, "Giant Paperclips",
       "Giant Plain 51mm 100 pack"),
@@ -70,7 +66,7 @@ object ProductCompanion {
     new Product(4, 5018306312913L, "No Tear Paper Clip",
       "No Tear Extra Large Pack of 1000"),
     new Product(5, 5018206244611L, "Zebra Paperclips",
-      "Zebra Length 28mm Assorted 150 Pack")
+      "Zebra Length 28mm Assorted 150 Pack")*/
   )
 
   def getMax(products: Set[Product]): Long = {
@@ -86,7 +82,7 @@ object ProductCompanion {
 
   def add(product: Product): Unit = {
     //product.setId(getMax(products))
-    products = products + product
+    //products = products + product
   }
 
   def findById(id: Long): Option[Product] = {
@@ -105,7 +101,7 @@ object ProductCompanion {
   }
 
   def delete(product: Product): Unit = {
-    products = products - product
+    //products = products - product
   }
 
   def findAll: List[Product] = {

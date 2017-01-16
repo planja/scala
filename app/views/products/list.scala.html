@@ -2,15 +2,15 @@
 @main("app name") {
     <dl class="products">
     @for(product <- products) {
-        @helper.form(action = routes.Products.delete(product.id)) {
+        @helper.form(action = routes.Products.delete(product.id.get)) {
             <p><input type="submit" class="btn primary"
             value='delete product'></p>
         }
-        <a href="@controllers.routes.Products.edit(product.id)">
+        <a href="@controllers.routes.Products.edit(product.id.get)">
         edit
         </a>
         <dt>
-            <a href="@controllers.routes.Products.show(product.id)">
+            <a href="@controllers.routes.Products.show(product.id.get)">
             @product.name
             </a>
         </dt>

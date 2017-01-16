@@ -1,12 +1,18 @@
 package controllers
 
-import play.api.mvc.{Action, Controller}
 import models.{Product, ProductCompanion, ProductDao}
 import play.api.data.Form
 import play.api.data.Forms.{longNumber, mapping, nonEmptyText}
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Flash
+import play.api.mvc.{Action, Controller}
+import play.api.data.Forms._
+
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.util.{Failure, Success}
 
 
 /**
@@ -15,11 +21,29 @@ import play.api.mvc.Flash
 object Products extends Controller {
 
   def list() = Action { implicit request =>
-    ProductDao.delete(1)
-    ProductDao.add(Product(2, 123, "0", "0"))
-    val products = ProductCompanion.findAll
-    val test = ProductDao.listAll
-    Ok(views.html.products.list(products))
+
+    //val test = ProductDao.listAll
+
+    //val test = ProductDao.listAll
+    val newId = Await.ready(ProductDao.add(Product(null, 321, "0", "0")), Duration.Inf).value.get
+    val test = Await.ready(ProductDao.listAll, Duration.Inf).value.get
+    ProductDao.delete(2)
+
+    /*ProductDao.delete(1).andThen {
+      case Success(_) =>
+        null
+      case Failure(e) =>
+        e.printStackTrace()
+    }*/
+    println("qwerty")
+
+    //.delete(1)
+    //
+    //val test = ProductDao.listAll
+
+    // val products = ProductCompanion.findAll
+
+    Ok(views.html.products.list(null))
   }
 
   def show(id: Long) = Action { implicit request =>
@@ -47,7 +71,7 @@ object Products extends Controller {
     ProductCompanion.findById(ean) match {
       case Some(product) =>
         val form = productForm.fill(product)
-        Ok(views.html.products.edit(form, product.id))
+        Ok(views.html.products.edit(form, product.id.get))
       case None => NotFound
     }
   }
@@ -81,7 +105,7 @@ object Products extends Controller {
       success = { newProduct =>
         ProductCompanion.add(newProduct)
         val message = "success"
-        Redirect(routes.Products.show(newProduct.id)).
+        Redirect(routes.Products.show(newProduct.id.get)).
           flashing("success" -> message)
       }
     )
@@ -89,7 +113,7 @@ object Products extends Controller {
 
   val productForm: Form[Product] = Form(
     mapping(
-      "id" -> longNumber,
+      "id" -> optional(longNumber),
       "ean" -> longNumber,
       "name" -> nonEmptyText,
       "description" -> nonEmptyText
