@@ -1,7 +1,15 @@
-@(message: String)(implicit flash: Flash, lang: Lang)
-
-@main("Welcome to Play") {
-
-    @play20.welcome(message)
-
-}
+<!doctype html>
+<html ng-app>
+    <head>
+        <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/angularjs.1.6.1.min.js")" type="text/javascript"></script>
+    </head>
+    <body>
+        <div>
+            <label>Name:</label>
+            <input type="text" ng-model="yourName" placeholder="Enter a name here">
+            <hr>
+            <h1>Hello {{yourName}}!</h1>
+        </div>
+    </body>
+</html>
