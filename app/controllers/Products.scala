@@ -22,32 +22,15 @@ object Products extends Controller {
 
   def list() = Action { implicit request =>
 
-    //val test = ProductDao.listAll
-
-    //val test = ProductDao.listAll
-    val newId = Await.ready(ProductDao.add(Product(null, 321, "0", "0")), Duration.Inf).value.get
-    val test = Await.ready(ProductDao.listAll, Duration.Inf).value.get
-    ProductDao.delete(2)
-
-    /*ProductDao.delete(1).andThen {
-      case Success(_) =>
-        null
-      case Failure(e) =>
-        e.printStackTrace()
-    }*/
-    println("qwerty")
-
-    //.delete(1)
-    //
-    //val test = ProductDao.listAll
-
-    // val products = ProductCompanion.findAll
-
-    Ok(views.html.products.list(null))
+    /* val update = ProductDao.update(Product(Option(20), 111111, "1111111", "111111"))
+     val newId = Await.ready(ProductDao.add(Product(null, 321, "0", "0")), Duration.Inf).value.get
+     val value = Await.ready(ProductDao.delete(35), Duration.Inf)*/
+    val list = Await.ready(ProductDao.listAll, Duration.Inf)
+    Ok(views.html.products.list(list.value.get.get.toList))
   }
 
   def show(id: Long) = Action { implicit request =>
-    ProductCompanion.findById(id).map { product =>
+    Await.ready(ProductDao.findById(id), Duration.Inf).value.get.get.map { product =>
       Ok(views.html.products.details(product))
     }.getOrElse(NotFound)
   }

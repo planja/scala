@@ -1,21 +1,18 @@
 package models
 
+import slick.lifted.Tag
+import config.SlickDBDriver.driver.api._
+import scala.concurrent._
 import play.api.Play
 import play.api.db.slick.DatabaseConfigProvider
-import slick.driver.JdbcProfile
-import slick.lifted.Tag
-
-import config.SlickDBDriver.driver.api._
-
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
-import scala.concurrent._
-import ExecutionContext.Implicits.global
+import slick.driver.JdbcProfile
 
 /**
   * Created by ShchykalauM on 09.01.2017.
   */
-case class Product(id: Option[Long],ean: Long,name: String,description: String) {
+case class Product(id: Option[Long], ean: Long, name: String, description: String) {
 }
 
 class ProductTableDef(tag: Tag) extends Table[Product](tag, "PRODUCT") {
@@ -37,15 +34,24 @@ object ProductDao {
 
   val products = TableQuery[ProductTableDef]
 
-  val insertQuery =(product:Product)=> {
-    (products += product).flatMap{x => products.sortBy{_.id.desc.nullsFirst}.map(_.id).result.head}
+  val insertQuery = (product: Product) => {
+    (products += product).flatMap { x =>
+      products.sortBy {
+        _.id.desc.nullsFirst
+      }.map(_.id).result.head
+    }
   }
+
+  def findById(id: Long): Future[Option[Product]] = {
+    dbConfig.db.run(products.filter(_.id === id).result.headOption)
+  }
+
 
   def listAll: Future[Seq[Product]] = {
     dbConfig.db.run(products.result)
   }
 
-  def add(product: Product): Future[Long] = dbConfig.db.run{
+  def add(product: Product): Future[Long] = dbConfig.db.run {
     insertQuery(product)
   }
 
@@ -53,29 +59,37 @@ object ProductDao {
     dbConfig.db.run(products.filter(_.id === id).delete)
   }
 
+
+  def update(updatedProduct: Product): Product = {
+    val action = products.filter(_.id === updatedProduct.id).map(product => (product.name, product.ean, product.description))
+      .update(updatedProduct.name, updatedProduct.ean, updatedProduct.description)
+    val future = dbConfig.db.run(action)
+    updatedProduct
+  }
+
 }
 
 object ProductCompanion {
   private var products = Set(
-   /* new Product(1, 5010255079763L, "Paperclips Large",
-      "Large Plain Pack of 1000"),
-    new Product(2, 5018206244666L, "Giant Paperclips",
-      "Giant Plain 51mm 100 pack"),
-    new Product(3, 5018306332812L, "Paperclip Giant Plain",
-      "Giant Plain Pack of 10000"),
-    new Product(4, 5018306312913L, "No Tear Paper Clip",
-      "No Tear Extra Large Pack of 1000"),
-    new Product(5, 5018206244611L, "Zebra Paperclips",
-      "Zebra Length 28mm Assorted 150 Pack")*/
+    /* new Product(1, 5010255079763L, "Paperclips Large",
+       "Large Plain Pack of 1000"),
+     new Product(2, 5018206244666L, "Giant Paperclips",
+       "Giant Plain 51mm 100 pack"),
+     new Product(3, 5018306332812L, "Paperclip Giant Plain",
+       "Giant Plain Pack of 10000"),
+     new Product(4, 5018306312913L, "No Tear Paper Clip",
+       "No Tear Extra Large Pack of 1000"),
+     new Product(5, 5018206244611L, "Zebra Paperclips",
+       "Zebra Length 28mm Assorted 150 Pack")*/
   )
 
   def getMax(products: Set[Product]): Long = {
-  /*  var max: Long = 0
-    for (product <- products) {
-      if (max <= product.getId)
-        max = product.getId
-    }
-    max + 1*/
+    /*  var max: Long = 0
+      for (product <- products) {
+        if (max <= product.getId)
+          max = product.getId
+      }
+      max + 1*/
     0
   }
 
@@ -86,17 +100,17 @@ object ProductCompanion {
   }
 
   def findById(id: Long): Option[Product] = {
-   //products.find(_.getId == id)
+    //products.find(_.getId == id)
     null
   }
 
   def update(id: Long, newProduct: Product): Unit = {
     var product = this.findById(id)
     if (product.isDefined) {
-     /* product.get.setId(id)
-      product.get.setEan(newProduct.getEan)
-      product.get.setName(newProduct.getName)
-      product.get.setDescription(newProduct.getDescription)*/
+      /* product.get.setId(id)
+       product.get.setEan(newProduct.getEan)
+       product.get.setName(newProduct.getName)
+       product.get.setDescription(newProduct.getDescription)*/
     }
   }
 
