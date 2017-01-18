@@ -8,6 +8,7 @@ import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Flash
 import play.api.mvc.{Action, Controller}
 import play.api.data.Forms._
+import play.api.libs.json.Json
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,11 +30,32 @@ object Products extends Controller {
     Ok(views.html.products.list(list.value.get.get.toList))
   }
 
+  def getProduct = Action { implicit request =>
+    val list = Await.ready(ProductDao.listAll, Duration.Inf)
+    Ok(Json.toJson(list.value.get.get))
+  }
+
+  def deleteProduct(id: Long) = Action { implicit request =>
+    Await.ready(ProductDao.delete(id), Duration.Inf)
+    Ok("delete")
+  }
+
+  def partialPhone = Action {
+    Ok(views.html.phoneList())
+  }
+
+  def partialTablet = Action {
+    Ok(views.html.tabletList())
+  }
+
+  //////////////////////////
+
   def show(id: Long) = Action { implicit request =>
     Await.ready(ProductDao.findById(id), Duration.Inf).value.get.get.map { product =>
       Ok(views.html.products.details(product))
     }.getOrElse(NotFound)
   }
+
 
   def delete(id: Long) = Action { implicit request =>
     ProductCompanion.findById(id).map { product =>

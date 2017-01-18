@@ -4,21 +4,31 @@
 
 
 # Home page
-GET         /                           controllers.Application.index
+GET           /                           controllers.Application.index
 
-GET         /products                   controllers.Products.list
+GET           /products                   controllers.Products.list
 
-GET         /products/newproduct        controllers.Products.newProduct
+GET           /products/newproduct        controllers.Products.newProduct
 
-POST        /products/save              controllers.Products.save
+POST          /products/save              controllers.Products.save
 
-POST        /products/update            controllers.Products.update(id:Long)
+POST          /products/update            controllers.Products.update(id:Long)
 
-POST        /products/:id             controllers.Products.delete(id:Long)
+POST          /products/:id               controllers.Products.delete(id:Long)
 
-GET         /products/:id              controllers.Products.show(id: Long)
+GET           /products/:id               controllers.Products.show(id: Long)
 
-GET         /products/edit/:id        controllers.Products.edit(id:Long)
+GET           /products/edit/:id          controllers.Products.edit(id:Long)
+
+#   For Ajax
+
+GET           /getProducts                controllers.Products.getProduct
+
+DELETE        /deleteProduct/:id          controllers.Products.deleteProduct(id:Long)
+
+GET           /phoneList.html             controllers.Products.partialPhone
+
+GET           /tabletList.html            controllers.Products.partialTablet
 
 
 
@@ -30,11 +40,11 @@ GET         /products/edit/:id        controllers.Products.edit(id:Long)
 
 
 # Test page
-GET         /test                       controllers.Application.test
+GET           /test                       controllers.Application.test
 
-GET         /param                      controllers.Application.param(n:String)
+GET           /param                      controllers.Application.param(n:String)
 
 
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file               controllers.Assets.at(path="/public", file)
+GET           /assets/*file               controllers.Assets.at(path="/public", file)
